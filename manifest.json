@@ -1,0 +1,18 @@
+{
+  "name": "BassRoutune",
+  "short_name": "BassRoutune",
+  "description": "Kişisel bas gitar çalışma rutini, metronom ve geri sayım uygulaması.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b0b0f",
+  "theme_color": "#0b0b0f",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "BassRoutine-Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
