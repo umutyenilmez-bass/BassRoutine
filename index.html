@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BassRoutune</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-fallback">BassRoutune</div>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item active" data-section="bona"><span class="nav-num">01</span><span class="nav-label">Bona</span></li>
+      <li class="nav-item" data-section="isinma"><span class="nav-num">02</span><span class="nav-label">Isınma</span></li>
+      <li class="nav-item" data-section="bos-teller"><span class="nav-num">03</span><span class="nav-label">Boş Teller</span></li>
+      <li class="nav-item" data-section="gam"><span class="nav-num">04</span><span class="nav-label">Gam Seç</span></li>
+      <li class="nav-item" data-section="ders"><span class="nav-num">05</span><span class="nav-label">E-Bass Dersi</span></li>
+      <li class="nav-item" data-section="master"><span class="nav-num">06</span><span class="nav-label">Master</span></li>
+      <li class="nav-item" data-section="slap"><span class="nav-num">07</span><span class="nav-label">Slap</span></li>
+      <li class="nav-item" data-section="repertuar"><span class="nav-num">08</span><span class="nav-label">Repertuar</span></li>
+      <li class="nav-item" data-section="sogutma"><span class="nav-num">09</span><span class="nav-label">Soğutma</span></li>
+      <li class="nav-item" data-section="analiz"><span class="nav-num">10</span><span class="nav-label">Analiz</span></li>
+    </ul>
+    <div class="sidebar-footer">
+      <span class="total-label">Toplam</span>
+      <span id="total-session-time" class="total-time">0:00</span>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- METRONOM -->
+    <div class="metronome-bar">
+      <div class="metro-beats">
+        <div class="beat-dot" id="beat-dot-1"></div>
+        <div class="beat-dot" id="beat-dot-2"></div>
+        <div class="beat-dot" id="beat-dot-3"></div>
+        <div class="beat-dot" id="beat-dot-4"></div>
+      </div>
+      <div class="metro-center">
+        <button class="metro-step" id="metro-minus">−</button>
+        <div class="bpm-wrap">
+          <input type="number" id="bpm-input" value="80" min="40" max="240" class="bpm-input" />
+          <span class="bpm-unit">BPM</span>
+        </div>
+        <button class="metro-step" id="metro-plus">+</button>
+      </div>
+      <div class="metro-right">
+        <button class="tap-btn" id="tap-btn">TAP</button>
+        <button class="metro-toggle" id="metro-toggle">Başlat</button>
+      </div>
+    </div>
+
+    <!-- 01 BONA -->
+    <section class="section active" id="section-bona">
+      <div class="section-header"><h1 class="section-title">Bona</h1></div>
+      <div class="sw-editor-layout">
+        <div class="card sw-card" id="sw-card-bona"></div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-bona')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-bona"
+            data-placeholder="Bona notları..." oninput="saveEditorNote('bona',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 ISINMA -->
+    <section class="section" id="section-isinma">
+      <div class="section-header"><h1 class="section-title">Isınma</h1></div>
+      <div class="sw-editor-layout">
+        <div class="card sw-card" id="sw-card-isinma"></div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-isinma')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-isinma"
+            data-placeholder="Isınma notları..." oninput="saveEditorNote('isinma',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 BOŞ TELLER -->
+    <section class="section" id="section-bos-teller">
+      <div class="section-header"><h1 class="section-title">Boş Teller</h1></div>
+      <div class="sw-editor-layout">
+        <div class="card sw-card" id="sw-card-bos-teller"></div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-bos-teller')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-bos-teller"
+            data-placeholder="Boş tel çalışma notları..." oninput="saveEditorNote('bos-teller',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 GAM SEÇ -->
+    <section class="section" id="section-gam">
+      <div class="section-header"><h1 class="section-title">Gam Seç</h1></div>
+      <div class="section-body">
+        <div class="sw-editor-layout two-top">
+          <div class="card sw-card" id="sw-card-gam"></div>
+          <div class="card">
+            <div class="card-label">Program Önerisi <span id="gam-counter" class="card-badge"></span></div>
+            <div id="gam-queue-label" class="gam-status-text">24 tondan seçiliyor</div>
+            <div class="queue-dots" id="gam-queue-dots"></div>
+            <button class="action-btn" onclick="suggestScale()">Sonraki Gamı Öner</button>
+            <button class="ghost-btn" onclick="resetGamQueue()">↺ Sırayı sıfırla</button>
+            <!-- Öneri sonucu: aynı panel içinde --> 
+            <div id="scale-result" class="gam-inline-result" style="display:none">
+              <span id="scale-result-name" class="scale-name-big">—</span>
+              <span id="scale-result-type" class="scale-type-badge">—</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">24 Ton — Majör &amp; Minör</div>
+          <div class="all-keys-grid" id="all-keys-grid"></div>
+        </div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-gam')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-gam"
+            data-placeholder="Gam çalışma notları..." oninput="saveEditorNote('gam',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 E-BASS DERSİ -->
+    <section class="section" id="section-ders">
+      <div class="section-header"><h1 class="section-title">E-Bass Dersi</h1></div>
+      <div class="sw-editor-layout">
+        <div class="card sw-card" id="sw-card-ders"></div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-ders')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-ders"
+            data-placeholder="Ders notları..." oninput="saveEditorNote('ders',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 MASTER -->
+    <section class="section" id="section-master">
+      <div class="section-header"><h1 class="section-title">Master</h1></div>
+      <div class="sw-editor-layout">
+        <div class="card sw-card" id="sw-card-master"></div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-master')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-master"
+            data-placeholder="Şarkı notları, ölçüler..." oninput="saveEditorNote('master',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 SLAP -->
+    <section class="section" id="section-slap">
+      <div class="section-header"><h1 class="section-title">Slap</h1></div>
+      <div class="sw-editor-layout">
+        <div class="card sw-card" id="sw-card-slap"></div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-slap')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-slap"
+            data-placeholder="Slap teknik notları..." oninput="saveEditorNote('slap',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 REPERTUAR -->
+    <section class="section" id="section-repertuar">
+      <div class="section-header"><h1 class="section-title">Repertuar</h1></div>
+      <div class="sw-editor-layout">
+        <div class="card sw-card" id="sw-card-repertuar"></div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-repertuar')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-repertuar"
+            data-placeholder="Çalıştığım şarkılar, listeler..." oninput="saveEditorNote('repertuar',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 SOĞUTMA -->
+    <section class="section" id="section-sogutma">
+      <div class="section-header"><h1 class="section-title">Soğutma</h1></div>
+      <div class="sw-editor-layout">
+        <div class="card sw-card" id="sw-card-sogutma"></div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-sogutma')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-sogutma"
+            data-placeholder="Günlük değerlendirme..." oninput="saveEditorNote('sogutma',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 ANALİZ -->
+    <section class="section" id="section-analiz">
+      <div class="section-header"><h1 class="section-title">Analiz</h1></div>
+      <div class="sw-editor-layout">
+        <div class="card sw-card" id="sw-card-analiz"></div>
+        <div class="card editor-card">
+          <div class="editor-toolbar">
+            <button class="tb-btn" data-cmd="bold"><b>B</b></button>
+            <button class="tb-btn tb-italic" data-cmd="italic">I</button>
+            <button class="tb-btn tb-underline" data-cmd="underline">U</button>
+            <button class="tb-btn tb-strike" data-cmd="strikeThrough">S</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList">• Liste</button>
+            <button class="tb-btn" data-cmd="insertOrderedList">1. Liste</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="h3">H</button>
+            <button class="tb-btn" data-cmd="formatBlock" data-val="p">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-clear" onclick="clearEditor('editor-analiz')">✕ Temizle</button>
+          </div>
+          <div class="rich-editor" contenteditable="true" id="editor-analiz"
+            data-placeholder="Oturum notu, değerlendirme..." oninput="saveEditorNote('analiz',this)"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
