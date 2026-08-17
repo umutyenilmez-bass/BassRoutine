@@ -1,5 +1,9 @@
 'use strict';
 
+// E-Tablo entegrasyonu için varsayılan Apps Script Web Uygulaması URL'si
+// Buraya kopyaladığınız URL'yi yazarsanız, tüm cihazlarda otomatik olarak eşleşir.
+const DEFAULT_SYNC_URL = '';
+
 // ════════════════════════════════════════════
 //  NAVİGASYON
 // ════════════════════════════════════════════
@@ -540,7 +544,177 @@ document.addEventListener('DOMContentLoaded', () => {
     if (t) t.classList.add('active');
     if (n) n.classList.add('active');
   }
+
+  // 5) Umut Gig - Bulut ve Yerel Veri Yönetimi
+  initUmutGigs();
 });
+
+// ════════════════════════════════════════════
+//  UMUT GIG - BULUT VE YEREL VERİ YÖNETİMİ
+// ════════════════════════════════════════════
+function initUmutGigs() {
+  const urlInput = document.getElementById('cloud-url-input');
+  const statusMsg = document.getElementById('cloud-status-msg');
+  const saveBtn = document.getElementById('cloud-save-btn');
+  const loadBtn = document.getElementById('cloud-load-btn');
+  
+  if (!urlInput) return;
+
+  const savedUrl = loadState('sync_url') || DEFAULT_SYNC_URL;
+  urlInput.value = savedUrl;
+
+  // Durumu güncelle
+  updateCloudStatus();
+
+  // URL girdisi değiştiğinde kaydet
+  urlInput.addEventListener('input', () => {
+    saveState('sync_url', urlInput.value.trim());
+    updateCloudStatus();
+  });
+
+  // Yerel verileri yükle
+  const savedGigs = loadState('umut_gigs') || {};
+  document.querySelectorAll('.gig-input').forEach(input => {
+    const day = input.dataset.day;
+    if (day && input.id !== 'cloud-url-input') {
+      const type = input.classList.contains('gig-job') ? 'job' : 'outfit';
+      if (savedGigs[day] && savedGigs[day][type] !== undefined) {
+        input.value = savedGigs[day][type];
+      }
+    }
+  });
+
+  // Yerel veri değişikliklerini otomatik kaydet
+  document.querySelectorAll('.gig-input').forEach(input => {
+    if (input.id === 'cloud-url-input') return;
+    input.addEventListener('input', () => {
+      const day = input.dataset.day;
+      if (day) {
+        const type = input.classList.contains('gig-job') ? 'job' : 'outfit';
+        const gigs = loadState('umut_gigs') || {};
+        if (!gigs[day]) gigs[day] = {};
+        gigs[day][type] = input.value;
+        saveState('umut_gigs', gigs);
+      }
+    });
+  });
+
+  // Buton dinleyicileri
+  saveBtn.addEventListener('click', saveGigsToCloud);
+  loadBtn.addEventListener('click', () => loadGigsFromCloud(false));
+
+  // Eğer URL tanımlıysa sayfa açılışında veriyi otomatik çek
+  if (savedUrl) {
+    loadGigsFromCloud(true);
+  }
+}
+
+function updateCloudStatus() {
+  const urlInput = document.getElementById('cloud-url-input');
+  const statusMsg = document.getElementById('cloud-status-msg');
+  if (!statusMsg) return;
+  const url = urlInput.value.trim();
+  if (url) {
+    statusMsg.textContent = 'Bulut bağlantısı hazır. Senkronize etmek için aşağıdaki butonları kullanın.';
+    statusMsg.className = 'cloud-status-text';
+  } else {
+    statusMsg.textContent = 'Bulut bağlantısı aktif değil. Verileriniz yerel olarak tarayıcıya kaydedilmektedir.';
+    statusMsg.className = 'cloud-status-text';
+  }
+}
+
+async function saveGigsToCloud() {
+  const urlInput = document.getElementById('cloud-url-input');
+  const statusMsg = document.getElementById('cloud-status-msg');
+  const saveBtn = document.getElementById('cloud-save-btn');
+  const url = urlInput.value.trim();
+  
+  if (!url) {
+    alert('Lütfen önce geçerli bir Google Apps Script Web Uygulaması URL\'si girin.');
+    return;
+  }
+
+  const gigs = loadState('umut_gigs') || {};
+  
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Kaydediliyor...';
+  statusMsg.textContent = 'Veriler buluta yükleniyor...';
+  statusMsg.className = 'cloud-status-text';
+
+  try {
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(gigs)
+    });
+    
+    statusMsg.textContent = 'Buluta gönderildi ve E-Tablo güncellendi!';
+    statusMsg.className = 'cloud-status-text success';
+  } catch (error) {
+    console.error(error);
+    statusMsg.textContent = 'Bağlantı hatası. Lütfen URL\'yi kontrol edin.';
+    statusMsg.className = 'cloud-status-text error';
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Buluta Kaydet';
+  }
+}
+
+async function loadGigsFromCloud(isInitial = false) {
+  const urlInput = document.getElementById('cloud-url-input');
+  const statusMsg = document.getElementById('cloud-status-msg');
+  const loadBtn = document.getElementById('cloud-load-btn');
+  const url = urlInput.value.trim();
+  
+  if (!url) {
+    if (!isInitial) alert('Lütfen önce geçerli bir Google Apps Script Web Uygulaması URL\'si girin.');
+    return;
+  }
+
+  if (loadBtn) {
+    loadBtn.disabled = true;
+    loadBtn.textContent = 'Yükleniyor...';
+  }
+  statusMsg.textContent = 'Veriler buluttan çekiliyor...';
+  statusMsg.className = 'cloud-status-text';
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Sunucu yanıt vermedi.');
+    const data = await res.json();
+    
+    if (data) {
+      saveState('umut_gigs', data);
+      
+      document.querySelectorAll('.gig-input').forEach(input => {
+        const day = input.dataset.day;
+        if (day && input.id !== 'cloud-url-input') {
+          const type = input.classList.contains('gig-job') ? 'job' : 'outfit';
+          if (data[day] && data[day][type] !== undefined) {
+            input.value = data[day][type];
+          } else {
+            input.value = '';
+          }
+        }
+      });
+
+      statusMsg.textContent = 'Buluttan veriler başarıyla yüklendi!';
+      statusMsg.className = 'cloud-status-text success';
+    }
+  } catch (error) {
+    console.error(error);
+    statusMsg.textContent = 'Buluttan veri çekme hatası. URL veya internet bağlantınızı kontrol edin.';
+    statusMsg.className = 'cloud-status-text error';
+  } finally {
+    if (loadBtn) {
+      loadBtn.disabled = false;
+      loadBtn.textContent = 'Buluttan Çek';
+    }
+  }
+}
 
 // ════════════════════════════════════════════
 //  SERVICE WORKER REGISTRATION (PWA)

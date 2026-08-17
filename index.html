@@ -30,6 +30,7 @@
       <li class="nav-item" data-section="repertuar"><span class="nav-num">08</span><span class="nav-label">Repertuar</span></li>
       <li class="nav-item" data-section="sogutma"><span class="nav-num">09</span><span class="nav-label">Soğutma</span></li>
       <li class="nav-item" data-section="analiz"><span class="nav-num">10</span><span class="nav-label">Analiz</span></li>
+      <li class="nav-item" data-section="umut-gig"><span class="nav-num">11</span><span class="nav-label">Umut Gig</span></li>
     </ul>
     <div class="sidebar-footer">
       <span class="total-label">Toplam</span>
@@ -335,6 +336,143 @@
           </div>
           <div class="rich-editor" contenteditable="true" id="editor-analiz"
             data-placeholder="Oturum notu, değerlendirme..." oninput="saveEditorNote('analiz',this)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 UMUT GIG -->
+    <section class="section" id="section-umut-gig">
+      <div class="section-header"><h1 class="section-title">Umut Gig</h1></div>
+      
+      <!-- Bulut Entegrasyonu Ayarları -->
+      <div class="card cloud-settings-card">
+        <div class="card-label">Bulut Entegrasyonu (Google Drive)</div>
+        <div class="cloud-settings-row">
+          <input type="url" id="cloud-url-input" class="gig-input" placeholder="Google Apps Script Web Uygulaması URL'sini yapıştırın..." />
+          <button class="action-btn" id="cloud-save-btn">Buluta Kaydet</button>
+          <button class="ghost-btn-sync" id="cloud-load-btn">Buluttan Çek</button>
+        </div>
+        <div id="cloud-status-msg" class="cloud-status-text">Bulut bağlantısı aktif değil. Verileriniz tarayıcıya kaydedilmektedir.</div>
+      </div>
+
+      <div class="gigs-grid">
+        <!-- Pazartesi -->
+        <div class="card gig-card">
+          <div class="gig-day-header">
+            <span class="gig-day-name">Pazartesi</span>
+          </div>
+          <div class="gig-fields">
+            <div class="gig-field-group">
+              <label class="gig-input-label">Gidilecek İş / Gig</label>
+              <input type="text" class="gig-input gig-job" data-day="pazartesi" placeholder="İş/Gig yazın..." />
+            </div>
+            <div class="gig-field-group">
+              <label class="gig-input-label">Kıyafet Rengi</label>
+              <input type="text" class="gig-input gig-outfit" data-day="pazartesi" placeholder="Kıyafet rengi..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Salı -->
+        <div class="card gig-card">
+          <div class="gig-day-header">
+            <span class="gig-day-name">Salı</span>
+          </div>
+          <div class="gig-fields">
+            <div class="gig-field-group">
+              <label class="gig-input-label">Gidilecek İş / Gig</label>
+              <input type="text" class="gig-input gig-job" data-day="sali" placeholder="İş/Gig yazın..." />
+            </div>
+            <div class="gig-field-group">
+              <label class="gig-input-label">Kıyafet Rengi</label>
+              <input type="text" class="gig-input gig-outfit" data-day="sali" placeholder="Kıyafet rengi..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Çarşamba -->
+        <div class="card gig-card">
+          <div class="gig-day-header">
+            <span class="gig-day-name">Çarşamba</span>
+          </div>
+          <div class="gig-fields">
+            <div class="gig-field-group">
+              <label class="gig-input-label">Gidilecek İş / Gig</label>
+              <input type="text" class="gig-input gig-job" data-day="carsamba" placeholder="İş/Gig yazın..." />
+            </div>
+            <div class="gig-field-group">
+              <label class="gig-input-label">Kıyafet Rengi</label>
+              <input type="text" class="gig-input gig-outfit" data-day="carsamba" placeholder="Kıyafet rengi..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Perşembe -->
+        <div class="card gig-card">
+          <div class="gig-day-header">
+            <span class="gig-day-name">Perşembe</span>
+          </div>
+          <div class="gig-fields">
+            <div class="gig-field-group">
+              <label class="gig-input-label">Gidilecek İş / Gig</label>
+              <input type="text" class="gig-input gig-job" data-day="persembe" placeholder="İş/Gig yazın..." />
+            </div>
+            <div class="gig-field-group">
+              <label class="gig-input-label">Kıyafet Rengi</label>
+              <input type="text" class="gig-input gig-outfit" data-day="persembe" placeholder="Kıyafet rengi..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Cuma -->
+        <div class="card gig-card">
+          <div class="gig-day-header">
+            <span class="gig-day-name">Cuma</span>
+          </div>
+          <div class="gig-fields">
+            <div class="gig-field-group">
+              <label class="gig-input-label">Gidilecek İş / Gig</label>
+              <input type="text" class="gig-input gig-job" data-day="cuma" placeholder="İş/Gig yazın..." />
+            </div>
+            <div class="gig-field-group">
+              <label class="gig-input-label">Kıyafet Rengi</label>
+              <input type="text" class="gig-input gig-outfit" data-day="cuma" placeholder="Kıyafet rengi..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Cumartesi -->
+        <div class="card gig-card">
+          <div class="gig-day-header">
+            <span class="gig-day-name">Cumartesi</span>
+          </div>
+          <div class="gig-fields">
+            <div class="gig-field-group">
+              <label class="gig-input-label">Gidilecek İş / Gig</label>
+              <input type="text" class="gig-input gig-job" data-day="cumartesi" placeholder="İş/Gig yazın..." />
+            </div>
+            <div class="gig-field-group">
+              <label class="gig-input-label">Kıyafet Rengi</label>
+              <input type="text" class="gig-input gig-outfit" data-day="cumartesi" placeholder="Kıyafet rengi..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Pazar -->
+        <div class="card gig-card">
+          <div class="gig-day-header">
+            <span class="gig-day-name">Pazar</span>
+          </div>
+          <div class="gig-fields">
+            <div class="gig-field-group">
+              <label class="gig-input-label">Gidilecek İş / Gig</label>
+              <input type="text" class="gig-input gig-job" data-day="pazar" placeholder="İş/Gig yazın..." />
+            </div>
+            <div class="gig-field-group">
+              <label class="gig-input-label">Kıyafet Rengi</label>
+              <input type="text" class="gig-input gig-outfit" data-day="pazar" placeholder="Kıyafet rengi..." />
+            </div>
+          </div>
         </div>
       </div>
     </section>

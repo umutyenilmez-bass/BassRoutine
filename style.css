@@ -655,3 +655,120 @@ body {
   padding-top: 16px;
   border-top: 1px solid var(--border);
 }
+
+/* ─── UMUT GIG SECTION ─── */
+.cloud-settings-card {
+  margin-bottom: 24px;
+}
+.cloud-settings-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.cloud-settings-row .gig-input {
+  flex: 1;
+}
+.cloud-status-text {
+  font-size: 0.78rem;
+  color: var(--text-2);
+  margin-top: 8px;
+  transition: color 0.2s ease;
+}
+.cloud-status-text.success {
+  color: var(--green);
+}
+.cloud-status-text.error {
+  color: var(--red);
+}
+.ghost-btn-sync {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--ff-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.ghost-btn-sync:hover {
+  border-color: var(--border-mid);
+  color: var(--text-1);
+}
+
+.gigs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+  gap: 16px;
+}
+.gig-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.gig-card:hover {
+  border-color: var(--border-mid);
+  transform: translateY(-2px);
+}
+.gig-day-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+.gig-day-name {
+  font-family: var(--ff-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.gig-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.gig-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gig-input-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.gig-input {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-1);
+  font-family: var(--ff-body);
+  font-size: 0.95rem;
+  padding: 8px 12px;
+  outline: none;
+  transition: all 0.12s;
+}
+.gig-input:focus {
+  border-color: var(--border-mid);
+  background: rgba(255, 255, 255, 0.05);
+}
+.gig-input::placeholder {
+  color: var(--text-3);
+}
+
+/* Mobil Uyumlu Butonlar */
+@media (max-width: 700px) {
+  .cloud-settings-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .ghost-btn-sync, .cloud-settings-row .action-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
