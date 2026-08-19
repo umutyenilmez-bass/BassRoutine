@@ -80,11 +80,10 @@ function metroTick(time, beat) {
 function scheduleMetro() {
   const ctx = getAudioCtx();
   while (metroNextTime < ctx.currentTime + 0.12) {
-    // Her ölçünün ilk vuruşunda (beat 0) süre kontrolü
-    if (metroBeat === 0 && metroRunning && kademeliEnabled) {
+    // Saniye kontrolü: Ölçü bitmesini beklemeden, belirlenen saniye dolduğu an tempoyu artır
+    if (metroRunning && kademeliEnabled) {
       if (!kademeliStartTime) kademeliStartTime = metroNextTime;
       const elapsed = metroNextTime - kademeliStartTime;
-      // Belirlenen saniye dolduysa ve ölçü bittiyse (yeni ölçünün 1. vuruşunda) tempoyu artır
       if (elapsed >= kademeliSeconds) {
         metroBpm = Math.min(260, metroBpm + kademeliStep);
         kademeliStartTime = metroNextTime;
@@ -116,11 +115,7 @@ function animateBeats() {
         if (kademeliEnabled && metroRunning) {
           const elapsed = Math.max(0, audioCtx.currentTime - (kademeliStartTime || audioCtx.currentTime));
           const rem = Math.max(0, Math.ceil(kademeliSeconds - elapsed));
-          if (rem === 0) {
-            countLbl.textContent = `Ölçü bitiminde +${kademeliStep} BPM...`;
-          } else {
-            countLbl.textContent = `Kalan: ${rem} sn (+${kademeliStep} BPM)`;
-          }
+          countLbl.textContent = `Kalan: ${rem} sn (+${kademeliStep} BPM)`;
         } else {
           countLbl.textContent = kademeliEnabled ? `Hazır: ${kademeliSeconds} sn sonra +${kademeliStep} BPM` : 'Kademeli Kapalı';
         }
