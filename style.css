@@ -133,37 +133,46 @@ body {
   min-height: 100vh;
 }
 
-/* ─── BİRLEŞİK KOMPAKT METRONOM & KADEMELİ PANEL ─── */
-.metronome-bar {
+/* ─── TEK KARE BÜTÜNLEŞİK METRONOM KONSOLU ─── */
+.metronome-header {
   position: sticky;
   top: 0;
   z-index: 90;
-  background: rgba(11, 11, 15, 0.98);
-  backdrop-filter: blur(14px);
+  background: rgba(11, 11, 15, 0.96);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
   display: flex;
-  flex-direction: column;
-  padding: 12px 32px 10px;
-  gap: 10px;
+  justify-content: center;
+  align-items: center;
 }
 
-.metro-main-row {
+.metro-master-card {
+  max-width: 440px;
+  width: 100%;
+  background: rgba(22, 22, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px 20px 14px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  gap: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* 1) VURUŞ GÖSTERGELERİ */
+.metro-beats {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
   width: 100%;
 }
 
-.metro-beats {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
 .beat-dot {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.04);
   border: 1.5px solid rgba(255, 255, 255, 0.12);
@@ -182,7 +191,7 @@ body {
   border-color: #ffffff;
   color: #0b0b0f;
   transform: scale(1.2);
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.6);
 }
 .beat-dot.accent {
   background: var(--green);
@@ -192,22 +201,23 @@ body {
   box-shadow: 0 0 22px rgba(85, 199, 122, 0.9);
 }
 
+/* 2) TEMPO AYARI */
 .metro-center {
   display: flex;
   align-items: center;
-  gap: 14px;
-  flex: 1;
   justify-content: center;
+  gap: 14px;
+  width: 100%;
 }
 
 .metro-step {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-2);
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -227,7 +237,7 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 6px 16px;
+  padding: 6px 20px;
 }
 
 .bpm-input {
@@ -236,9 +246,9 @@ body {
   outline: none;
   color: var(--text-1);
   font-family: var(--ff-display);
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   font-weight: 700;
-  width: 74px;
+  width: 80px;
   text-align: center;
   -moz-appearance: textfield;
 }
@@ -248,26 +258,32 @@ body {
 }
 
 .bpm-unit {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-3);
   letter-spacing: 0.08em;
 }
 
-.metro-right {
+/* 3) AKSİYONLAR */
+.metro-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  width: 100%;
 }
 
 .tap-btn {
-  padding: 9px 18px;
+  flex: 1;
+  max-width: 110px;
+  padding: 10px 0;
+  text-align: center;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text-2);
   font-family: var(--ff-display);
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   cursor: pointer;
@@ -281,13 +297,16 @@ body {
 }
 
 .metro-toggle {
-  padding: 10px 26px;
+  flex: 2;
+  max-width: 240px;
+  padding: 11px 0;
+  text-align: center;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-mid);
   background: var(--bg-active);
   color: var(--text-1);
   font-family: var(--ff-display);
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
@@ -304,16 +323,27 @@ body {
   background: rgba(224,85,85,0.18);
 }
 
-/* ─── KADEMELİ BÜTÜNLEŞİK ALT SATIR ─── */
-.metro-kademeli-row {
+/* 4) KADEMELİ ARTIŞ KUTUSU */
+.metro-kademeli-box {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.k-ctrl-line,
+.k-step-line {
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: space-between;
+  gap: 10px;
   width: 100%;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  flex-wrap: wrap;
 }
+
 .kademeli-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -350,6 +380,7 @@ body {
   background: var(--green);
   box-shadow: 0 0 8px rgba(85, 199, 122, 0.8);
 }
+
 .kademeli-group {
   display: flex;
   align-items: center;
@@ -387,6 +418,7 @@ body {
   border-color: var(--green);
   color: var(--text-1);
 }
+
 .k-sec-wrap {
   display: inline-flex;
   align-items: baseline;
@@ -417,16 +449,18 @@ body {
   font-weight: 600;
   color: var(--text-3);
 }
+
 .kademeli-live {
-  margin-left: auto;
   font-family: var(--ff-display);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-2);
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
 }
 .pulse-tempo {
   animation: tempoPulse 0.4s ease-out;
@@ -785,20 +819,17 @@ body {
   .nav-label { display: none; }
   .nav-num   { width: 100%; text-align: center; }
   .sidebar-footer { display: none; }
-  .metronome-bar { padding: 10px 12px 8px; gap: 8px; }
-  .metro-main-row { gap: 10px; }
-  .metro-beats { gap: 5px; }
-  .beat-dot { width: 26px; height: 26px; font-size: 0.8rem; }
-  .bpm-wrap { padding: 5px 10px; }
-  .bpm-input { font-size: 1.6rem; width: 56px; }
-  .metro-step { width: 32px; height: 32px; font-size: 1.2rem; }
-  .tap-btn { padding: 7px 12px; font-size: 0.8rem; }
-  .metro-toggle { padding: 8px 16px; font-size: 0.85rem; }
+  .metronome-header { padding: 10px 12px; }
+  .metro-master-card { padding: 12px 14px; gap: 10px; max-width: 100%; }
+  .metro-beats { gap: 8px; }
+  .beat-dot { width: 30px; height: 30px; font-size: 0.85rem; }
+  .bpm-wrap { padding: 4px 14px; }
+  .bpm-input { font-size: 1.9rem; width: 64px; }
+  .metro-step { width: 36px; height: 36px; font-size: 1.3rem; }
+  .tap-btn { padding: 8px 0; font-size: 0.85rem; }
+  .metro-toggle { padding: 9px 0; font-size: 0.92rem; }
   .section { padding: 20px 16px 48px; }
   .section-title { font-size: 1.7rem; }
-
-  /* Kademeli Responsive */
-  .metro-kademeli-row { gap: 8px; justify-content: space-between; }
   .kademeli-live { width: 100%; text-align: center; margin-left: 0; }
 }
 

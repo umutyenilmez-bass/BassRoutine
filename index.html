@@ -40,15 +40,18 @@
 
   <main class="main-content">
 
-    <!-- BİRLEŞİK KOMPAKT METRONOM & KADEMELİ PANEL -->
-    <div class="metronome-bar">
-      <div class="metro-main-row">
+    <!-- TEK KARE BÜTÜNLEŞİK METRONOM KONSOLU -->
+    <header class="metronome-header">
+      <div class="metro-master-card">
+        <!-- 1) Vuruş Göstergeleri (1, 2, 3, 4) -->
         <div class="metro-beats">
           <div class="beat-dot" id="beat-dot-1">1</div>
           <div class="beat-dot" id="beat-dot-2">2</div>
           <div class="beat-dot" id="beat-dot-3">3</div>
           <div class="beat-dot" id="beat-dot-4">4</div>
         </div>
+
+        <!-- 2) Tempo Ayarı (− [80 BPM] +) -->
         <div class="metro-center">
           <button class="metro-step" id="metro-minus">−</button>
           <div class="bpm-wrap">
@@ -57,40 +60,47 @@
           </div>
           <button class="metro-step" id="metro-plus">+</button>
         </div>
-        <div class="metro-right">
+
+        <!-- 3) Başlat / Tap Aksiyonları -->
+        <div class="metro-actions">
           <button class="tap-btn" id="tap-btn">TAP</button>
           <button class="metro-toggle" id="metro-toggle">Başlat</button>
         </div>
-      </div>
 
-      <div class="metro-kademeli-row">
-        <button class="kademeli-toggle-btn" id="kademeli-toggle-btn">
-          <span class="kademeli-dot"></span>
-          <span class="kademeli-txt">Kademeli: <b id="kademeli-status-txt">KAPALI</b></span>
-        </button>
+        <!-- 4) Kademeli Artış Kontrolleri -->
+        <div class="metro-kademeli-box">
+          <div class="k-ctrl-line">
+            <button class="kademeli-toggle-btn" id="kademeli-toggle-btn">
+              <span class="kademeli-dot"></span>
+              <span class="kademeli-txt">Kademeli: <b id="kademeli-status-txt">KAPALI</b></span>
+            </button>
 
-        <div class="kademeli-group">
-          <span class="k-label">Artış:</span>
-          <div class="k-buttons">
-            <button class="k-step-btn active" data-step="5">+5</button>
-            <button class="k-step-btn" data-step="10">+10</button>
-            <button class="k-step-btn" data-step="15">+15</button>
+            <div class="kademeli-group">
+              <span class="k-label">Süre:</span>
+              <div class="k-sec-wrap">
+                <input type="number" id="k-seconds-input" class="k-sec-input" value="15" min="3" max="300" />
+                <span class="k-sec-unit">sn</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="k-step-line">
+            <div class="kademeli-group">
+              <span class="k-label">Artış:</span>
+              <div class="k-buttons">
+                <button class="k-step-btn active" data-step="5">+5</button>
+                <button class="k-step-btn" data-step="10">+10</button>
+                <button class="k-step-btn" data-step="15">+15</button>
+              </div>
+            </div>
+
+            <div class="kademeli-live" id="kademeli-live-info">
+              <span id="k-bar-count-lbl">Kademeli Kapalı</span>
+            </div>
           </div>
         </div>
-
-        <div class="kademeli-group">
-          <span class="k-label">Süre:</span>
-          <div class="k-sec-wrap">
-            <input type="number" id="k-seconds-input" class="k-sec-input" value="15" min="3" max="300" />
-            <span class="k-sec-unit">sn</span>
-          </div>
-        </div>
-
-        <div class="kademeli-live" id="kademeli-live-info">
-          <span id="k-bar-count-lbl">Kademeli Kapalı</span>
-        </div>
       </div>
-    </div>
+    </header>
 
     <!-- 01 BONA -->
     <section class="section active" id="section-bona">
