@@ -246,6 +246,499 @@ body {
 .metro-toggle.running { border-color: var(--red); color: var(--red); background: rgba(224,85,85,0.08); }
 .metro-toggle.running:hover { background: rgba(224,85,85,0.14); }
 
+/* ─── TEMPO TRAINER TOGGLE & PANEL ─── */
+.trainer-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--ff-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.trainer-toggle-btn:hover {
+  border-color: var(--border-mid);
+  color: var(--text-1);
+  background: var(--bg-hover);
+}
+.trainer-toggle-btn.panel-open {
+  border-color: rgba(85, 199, 122, 0.4);
+  background: rgba(85, 199, 122, 0.08);
+  color: var(--text-1);
+}
+.trainer-toggle-btn.active-training {
+  border-color: var(--green);
+  color: #fff;
+  background: rgba(85, 199, 122, 0.18);
+  box-shadow: 0 0 10px rgba(85, 199, 122, 0.2);
+}
+.trainer-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-3);
+  transition: all 0.15s;
+}
+.trainer-pill.active {
+  background: var(--green);
+  color: #0b0b0f;
+  box-shadow: 0 0 8px rgba(85, 199, 122, 0.5);
+}
+
+.trainer-panel {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, border-color 0.25s ease;
+  background: rgba(14, 14, 19, 0.98);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+  z-index: 85;
+}
+.trainer-panel.open {
+  max-height: 900px;
+  opacity: 1;
+  border-bottom-color: var(--border);
+}
+.trainer-panel-inner {
+  padding: 24px 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header & Switch */
+.trainer-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.trainer-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.trainer-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--ff-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.trainer-desc {
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+.trainer-switch-wrap {
+  display: flex;
+  align-items: center;
+}
+.trainer-switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--ff-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.trainer-switch-input {
+  display: none;
+}
+.trainer-switch-slider {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.trainer-switch-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-2);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.trainer-switch-input:checked + .trainer-switch-slider {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 10px rgba(85, 199, 122, 0.4);
+}
+.trainer-switch-input:checked + .trainer-switch-slider::after {
+  transform: translateX(20px);
+  background: #0b0b0f;
+}
+
+/* Presets Row */
+.trainer-presets-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.preset-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.preset-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.preset-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-2);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.preset-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-mid);
+  color: var(--text-1);
+}
+
+/* Config Grid */
+.trainer-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+.trainer-config-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.trainer-config-card.trainer-config-wide {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.config-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.config-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.config-step-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-hover);
+  color: var(--text-2);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s;
+}
+.config-step-btn:hover {
+  border-color: var(--border-mid);
+  color: var(--text-1);
+}
+.config-num-input {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-1);
+  font-family: var(--ff-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px 8px;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.config-num-input::-webkit-outer-spin-button,
+.config-num-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.config-num-input:focus {
+  border-color: var(--border-mid);
+}
+
+.config-mini-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  padding: 2px 0;
+  text-decoration: underline;
+  transition: color 0.12s;
+}
+.config-mini-btn:hover { color: var(--text-1); }
+
+.target-quick-chips,
+.trainer-step-chips,
+.interval-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.quick-chip,
+.step-chip,
+.interval-chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  color: var(--text-2);
+  font-family: var(--ff-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.quick-chip:hover,
+.step-chip:hover,
+.interval-chip:hover {
+  border-color: var(--border-mid);
+  color: var(--text-1);
+}
+.step-chip.active,
+.interval-chip.active {
+  background: var(--bg-active);
+  border-color: var(--green);
+  color: var(--text-1);
+}
+
+.config-hint {
+  font-size: 0.74rem;
+  color: var(--text-3);
+}
+
+.trainer-mode-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255,255,255,0.03);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.mode-tab {
+  flex: 1;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 0.76rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.mode-tab.active {
+  background: var(--bg-active);
+  color: var(--text-1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.target-action-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.action-radio-label,
+.trainer-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.84rem;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+}
+.action-radio-label:hover,
+.trainer-checkbox-label:hover {
+  color: var(--text-1);
+}
+.action-radio-label input,
+.trainer-checkbox-label input {
+  accent-color: var(--green);
+  cursor: pointer;
+}
+
+/* Canlı Antrenman Dashboard */
+.trainer-live-dashboard {
+  background: rgba(85, 199, 122, 0.04);
+  border: 1px solid rgba(85, 199, 122, 0.22);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.live-status-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.live-stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+.stat-lbl {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.stat-val {
+  font-family: var(--ff-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-2);
+}
+.live-progress-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.progress-current-badge {
+  font-family: var(--ff-display);
+  font-size: 0.92rem;
+  color: var(--text-1);
+}
+.progress-current-badge strong {
+  font-size: 1.25rem;
+  color: var(--green);
+  transition: all 0.2s ease;
+}
+.progress-sub-info {
+  font-family: var(--ff-display);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.trainer-progress-bar-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.trainer-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #55c77a 0%, #38bdf8 100%);
+  border-radius: 4px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.live-controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 8px;
+}
+.live-note {
+  font-size: 0.78rem;
+  color: var(--text-3);
+}
+.ghost-btn-trainer {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--ff-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.ghost-btn-trainer:hover {
+  border-color: var(--border-mid);
+  color: var(--text-1);
+  background: var(--bg-hover);
+}
+
+/* Tempo Pulse Animation */
+@keyframes tempoStepGlow {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(85, 199, 122, 0);
+  }
+  40% {
+    transform: scale(1.1);
+    color: var(--green);
+    text-shadow: 0 0 10px rgba(85, 199, 122, 0.8);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.pulse-tempo {
+  animation: tempoStepGlow 0.45s ease-out;
+}
+
 /* ─── SECTIONS ─── */
 .section { display: none; padding: 32px 36px 60px; }
 .section.active { display: block; }
@@ -595,10 +1088,23 @@ body {
   .nav-num   { width: 100%; text-align: center; }
   .sidebar-footer { display: none; }
   .sw-editor-layout { grid-template-columns: 1fr; min-height: auto; }
-  .metronome-bar { padding: 0 14px; }
+  .metronome-bar { padding: 0 10px; gap: 8px; }
+  .trainer-btn-text { display: none; }
+  .trainer-toggle-btn { padding: 6px 10px; }
   .bpm-input { font-size: 1.3rem; width: 46px; }
   .section { padding: 20px 16px 48px; }
   .section-title { font-size: 1.7rem; }
+
+  /* Trainer Responsive */
+  .trainer-panel-inner { padding: 16px 14px 20px; gap: 14px; }
+  .trainer-header-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .trainer-switch-wrap { width: 100%; justify-content: space-between; }
+  .trainer-config-card.trainer-config-wide { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .target-action-group { flex-direction: column; gap: 8px; }
+  .live-status-row { flex-direction: column; align-items: stretch; gap: 10px; }
+  .live-stat-box { flex-direction: row; justify-content: space-between; width: 100%; }
+  .live-controls-row { flex-direction: column; align-items: stretch; gap: 8px; }
+  .ghost-btn-trainer { width: 100%; text-align: center; }
 }
 
 /* ─── GERI SAYIM ─── */

@@ -19,7 +19,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
 });
 
 // ════════════════════════════════════════════
-//  WEB AUDIO METRONOM
+//  WEB AUDIO METRONOM & TEMPO TRAINER
 // ════════════════════════════════════════════
 let audioCtx = null;
 
@@ -37,6 +37,187 @@ let metroSchedId  = null;
 let metroAnimId   = null;
 let scheduledBeats = [];
 
+// TEMPO TRAINER DURUMU & AYARLARI
+const DEFAULT_TRAINER_CONFIG = {
+  enabled: false,
+  startBpm: 60,
+  targetBpm: 120,
+  stepBpm: 2,
+  intervalType: 'bars', // 'bars' | 'time'
+  barInterval: 4,       // 2, 4, 8, 16
+  timeInterval: 30,     // 15, 30, 45, 60
+  onTarget: 'stay',     // 'stay' | 'stop' | 'pyramid'
+  audioCue: true,
+  panelOpen: false
+};
+
+let trainerConfig = Object.assign({}, DEFAULT_TRAINER_CONFIG);
+
+let trainerState = {
+  currentBars: 0,
+  direction: 1, // 1: artış, -1: azalış (piramit modu)
+  stepStartTime: 0,
+  reachedTarget: false
+};
+
+function saveTrainerConfig() {
+  saveState('trainer_config', trainerConfig);
+}
+
+function loadTrainerConfig() {
+  const saved = loadState('trainer_config');
+  if (saved) {
+    trainerConfig = Object.assign({}, DEFAULT_TRAINER_CONFIG, saved);
+  }
+}
+
+function setMetroBpm(v, syncInputs = true) {
+  let val = parseInt(v, 10);
+  if (isNaN(val)) val = 80;
+  metroBpm = Math.min(280, Math.max(40, val));
+  
+  if (syncInputs) {
+    const input = document.getElementById('bpm-input');
+    if (input) input.value = metroBpm;
+  }
+  
+  // Canlı panelleri ve göstergeleri güncelle
+  const liveBpm = document.getElementById('live-current-bpm');
+  if (liveBpm) liveBpm.textContent = metroBpm;
+  
+  const currBpmLbl = document.getElementById('trainer-curr-bpm-lbl');
+  if (currBpmLbl) currBpmLbl.textContent = metroBpm;
+
+  updateTrainerProgressBar();
+}
+
+function pulseBpmDisplay() {
+  const bpmWrap = document.querySelector('.bpm-wrap');
+  const liveBadge = document.getElementById('live-current-badge');
+  if (bpmWrap) {
+    bpmWrap.classList.remove('pulse-tempo');
+    void bpmWrap.offsetWidth; // reflow tetikle
+    bpmWrap.classList.add('pulse-tempo');
+  }
+  if (liveBadge) {
+    liveBadge.classList.remove('pulse-tempo');
+    void liveBadge.offsetWidth;
+    liveBadge.classList.add('pulse-tempo');
+  }
+}
+
+function playTrainerCue(direction = 1) {
+  if (!trainerConfig.audioCue) return;
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    // Yükselişte tatlı tiz arpej, düşüşte pesleşen sinyal
+    const f1 = direction >= 0 ? 1200 : 1600;
+    const f2 = direction >= 0 ? 1800 : 1000;
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(f1, t);
+    osc.frequency.exponentialRampToValueAtTime(f2, t + 0.08);
+    gain.gain.setValueAtTime(0.35, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    osc.start(t);
+    osc.stop(t + 0.085);
+  } catch(e) {}
+}
+
+function calculateTrainerProgress() {
+  const minB = Math.min(trainerConfig.startBpm, trainerConfig.targetBpm);
+  const maxB = Math.max(trainerConfig.startBpm, trainerConfig.targetBpm);
+  if (maxB === minB) return 100;
+  const pct = Math.min(100, Math.max(0, Math.round(((metroBpm - minB) / (maxB - minB)) * 100)));
+  return pct;
+}
+
+function updateTrainerProgressBar() {
+  const fill = document.getElementById('trainer-progress-fill');
+  if (fill) {
+    const pct = calculateTrainerProgress();
+    fill.style.width = pct + '%';
+  }
+}
+
+function showTrainerStatusMsg(msg) {
+  const note = document.getElementById('trainer-live-note');
+  if (note) {
+    note.textContent = msg;
+    note.style.color = 'var(--text-1)';
+    setTimeout(() => {
+      if (note) note.style.color = '';
+    }, 3500);
+  }
+}
+
+function triggerTrainerStep(time) {
+  const minB = Math.min(trainerConfig.startBpm, trainerConfig.targetBpm);
+  const maxB = Math.max(trainerConfig.startBpm, trainerConfig.targetBpm);
+
+  let nextBpm = metroBpm + (trainerState.direction * trainerConfig.stepBpm);
+
+  if (trainerState.direction > 0 && nextBpm >= maxB) {
+    nextBpm = maxB;
+    if (trainerConfig.onTarget === 'stop') {
+      setMetroBpm(nextBpm);
+      updateTrainerDashboard();
+      playChime();
+      stopMetro();
+      showTrainerStatusMsg(`🎯 Hedef tempoya (${maxB} BPM) ulaşıldı! Antrenman tamamlandı.`);
+      return;
+    } else if (trainerConfig.onTarget === 'pyramid') {
+      trainerState.direction = -1;
+      playTrainerCue(-1);
+      showTrainerStatusMsg(`⚡ Zirveye (${maxB} BPM) ulaşıldı! Piramit modu: Tempoyu düşürüyoruz.`);
+    } else {
+      trainerState.reachedTarget = true;
+      playTrainerCue(1);
+      showTrainerStatusMsg(`✓ Hedef tempoya (${maxB} BPM) ulaşıldı. Sabit hızda devam ediliyor.`);
+    }
+  } else if (trainerState.direction < 0 && nextBpm <= minB) {
+    nextBpm = minB;
+    if (trainerConfig.onTarget === 'pyramid') {
+      trainerState.direction = 1;
+      playTrainerCue(1);
+      showTrainerStatusMsg(`↺ Başlangıç temposuna (${minB} BPM) inildi. Tekrar hızlanıyoruz!`);
+    }
+  } else {
+    playTrainerCue(trainerState.direction);
+    const dirIcon = trainerState.direction > 0 ? '▲' : '▼';
+    const intervalTxt = trainerConfig.intervalType === 'bars' ? `${trainerConfig.barInterval} ölçü` : `${trainerConfig.timeInterval} sn`;
+    showTrainerStatusMsg(`${dirIcon} Tempo ${metroBpm} → ${nextBpm} BPM (${intervalTxt} tamamlandı)`);
+  }
+
+  setMetroBpm(nextBpm);
+  pulseBpmDisplay();
+  updateTrainerDashboard();
+}
+
+function handleTrainerBarAdvance(time) {
+  if (!trainerConfig.enabled || !metroRunning) return;
+
+  if (trainerConfig.intervalType === 'bars') {
+    trainerState.currentBars++;
+    if (trainerState.currentBars > trainerConfig.barInterval) {
+      trainerState.currentBars = 1;
+      triggerTrainerStep(time);
+    }
+  } else if (trainerConfig.intervalType === 'time') {
+    if (!trainerState.stepStartTime) trainerState.stepStartTime = time;
+    if (time - trainerState.stepStartTime >= trainerConfig.timeInterval) {
+      trainerState.stepStartTime = time;
+      triggerTrainerStep(time);
+    }
+  }
+}
+
 function metroTick(time, beat) {
   const ctx  = getAudioCtx();
   const osc  = ctx.createOscillator();
@@ -53,8 +234,11 @@ function metroTick(time, beat) {
 
 function scheduleMetro() {
   const ctx = getAudioCtx();
-  const spb = 60 / metroBpm;
   while (metroNextTime < ctx.currentTime + 0.12) {
+    if (metroBeat === 0 && metroRunning && trainerConfig.enabled) {
+      handleTrainerBarAdvance(metroNextTime);
+    }
+    const spb = 60 / metroBpm;
     metroTick(metroNextTime, metroBeat);
     metroNextTime += spb;
     metroBeat = (metroBeat + 1) % 4;
@@ -70,6 +254,21 @@ function animateBeats() {
       document.querySelectorAll('.beat-dot').forEach(d => d.classList.remove('active', 'accent'));
       const dot = document.getElementById('beat-dot-' + ((b.beat % 4) + 1));
       if (dot) dot.classList.add(b.beat === 0 ? 'accent' : 'active');
+
+      // Canlı alt sayaç güncellemesi
+      if (trainerConfig.enabled && metroRunning) {
+        const subInfo = document.getElementById('live-sub-info');
+        if (subInfo) {
+          if (trainerConfig.intervalType === 'bars') {
+            const bar = Math.max(1, trainerState.currentBars || 1);
+            subInfo.textContent = `Ölçü: ${bar} / ${trainerConfig.barInterval}`;
+          } else {
+            const passed = Math.floor(audioCtx.currentTime - (trainerState.stepStartTime || audioCtx.currentTime));
+            const rem = Math.max(0, trainerConfig.timeInterval - passed);
+            subInfo.textContent = `Kalan: ${rem}s`;
+          }
+        }
+      }
     }
   }
   metroAnimId = requestAnimationFrame(animateBeats);
@@ -82,11 +281,23 @@ function startMetro() {
   metroBeat     = 0;
   metroNextTime = audioCtx.currentTime + 0.05;
   scheduledBeats = [];
+
+  // Antrenman modu açıksa başlangıç durumunu ayarla
+  if (trainerConfig.enabled) {
+    trainerState.currentBars = 0;
+    trainerState.direction = 1;
+    trainerState.stepStartTime = audioCtx.currentTime;
+    setMetroBpm(trainerConfig.startBpm);
+    showTrainerStatusMsg(`Antrenman başladı! ${trainerConfig.startBpm} BPM → ${trainerConfig.targetBpm} BPM`);
+  }
+
   scheduleMetro();
   animateBeats();
+
   const btn = document.getElementById('metro-toggle');
   btn.textContent = 'Durdur';
   btn.classList.add('running');
+  updateTrainerDashboard();
 }
 
 function stopMetro() {
@@ -98,26 +309,25 @@ function stopMetro() {
   const btn = document.getElementById('metro-toggle');
   btn.textContent = 'Başlat';
   btn.classList.remove('running');
+  updateTrainerDashboard();
 }
 
 document.getElementById('metro-toggle').addEventListener('click', () => {
   metroRunning ? stopMetro() : startMetro();
 });
+
 document.getElementById('metro-plus').addEventListener('click', () => {
-  metroBpm = Math.min(240, metroBpm + 1);
-  document.getElementById('bpm-input').value = metroBpm;
+  setMetroBpm(metroBpm + 1);
   if (metroRunning) { stopMetro(); startMetro(); }
 });
+
 document.getElementById('metro-minus').addEventListener('click', () => {
-  metroBpm = Math.max(40, metroBpm - 1);
-  document.getElementById('bpm-input').value = metroBpm;
+  setMetroBpm(metroBpm - 1);
   if (metroRunning) { stopMetro(); startMetro(); }
 });
+
 document.getElementById('bpm-input').addEventListener('change', function () {
-  let v = parseInt(this.value, 10);
-  if (isNaN(v)) v = 80;
-  metroBpm = Math.min(240, Math.max(40, v));
-  this.value = metroBpm;
+  setMetroBpm(this.value);
   if (metroRunning) { stopMetro(); startMetro(); }
 });
 
@@ -131,8 +341,7 @@ document.getElementById('tap-btn').addEventListener('click', () => {
     const diffs = [];
     for (let i = 1; i < tapTimes.length; i++) diffs.push(tapTimes[i] - tapTimes[i-1]);
     const avg = diffs.reduce((a,b) => a+b, 0) / diffs.length;
-    metroBpm = Math.min(240, Math.max(40, Math.round(60000 / avg)));
-    document.getElementById('bpm-input').value = metroBpm;
+    setMetroBpm(Math.round(60000 / avg));
     if (metroRunning) { stopMetro(); startMetro(); }
   }
   const btn = document.getElementById('tap-btn');
@@ -141,6 +350,371 @@ document.getElementById('tap-btn').addEventListener('click', () => {
   clearTimeout(tapTimes._t);
   tapTimes._t = setTimeout(() => { tapTimes = []; }, 2000);
 });
+
+// ════════════════════════════════════════════
+//  TEMPO TRAINER KONTROL VE UI YÖNETİMİ
+// ════════════════════════════════════════════
+function updateTrainerDashboard() {
+  const statStart = document.getElementById('stat-start-bpm');
+  if (statStart) statStart.textContent = `${trainerConfig.startBpm} BPM`;
+
+  const statTarget = document.getElementById('stat-target-bpm');
+  if (statTarget) statTarget.textContent = `${trainerConfig.targetBpm} BPM`;
+
+  const liveBpm = document.getElementById('live-current-bpm');
+  if (liveBpm) liveBpm.textContent = metroBpm;
+
+  const subInfo = document.getElementById('live-sub-info');
+  if (subInfo) {
+    if (trainerConfig.intervalType === 'bars') {
+      const b = Math.max(1, trainerState.currentBars || 1);
+      subInfo.textContent = `Ölçü: ${b} / ${trainerConfig.barInterval}`;
+    } else {
+      subInfo.textContent = `Aralık: ${trainerConfig.timeInterval}s`;
+    }
+  }
+
+  const badge = document.getElementById('trainer-status-pill');
+  const toggleBtn = document.getElementById('trainer-toggle-btn');
+  if (badge && toggleBtn) {
+    if (trainerConfig.enabled) {
+      badge.textContent = 'AKTİF';
+      badge.classList.add('active');
+      toggleBtn.classList.add('active-training');
+    } else {
+      badge.textContent = 'KAPALI';
+      badge.classList.remove('active');
+      toggleBtn.classList.remove('active-training');
+    }
+  }
+
+  updateTrainerProgressBar();
+}
+
+function applyTrainerPreset(presetKey) {
+  if (presetKey === 'warmup') {
+    trainerConfig.startBpm = 60;
+    trainerConfig.targetBpm = 100;
+    trainerConfig.stepBpm = 2;
+    trainerConfig.intervalType = 'bars';
+    trainerConfig.barInterval = 4;
+    trainerConfig.onTarget = 'stay';
+  } else if (presetKey === 'speed') {
+    trainerConfig.startBpm = 80;
+    trainerConfig.targetBpm = 140;
+    trainerConfig.stepBpm = 4;
+    trainerConfig.intervalType = 'bars';
+    trainerConfig.barInterval = 4;
+    trainerConfig.onTarget = 'stay';
+  } else if (presetKey === 'endurance') {
+    trainerConfig.startBpm = 90;
+    trainerConfig.targetBpm = 130;
+    trainerConfig.stepBpm = 5;
+    trainerConfig.intervalType = 'bars';
+    trainerConfig.barInterval = 8;
+    trainerConfig.onTarget = 'pyramid';
+  } else if (presetKey === 'drill') {
+    trainerConfig.startBpm = 100;
+    trainerConfig.targetBpm = 160;
+    trainerConfig.stepBpm = 2;
+    trainerConfig.intervalType = 'bars';
+    trainerConfig.barInterval = 2;
+    trainerConfig.onTarget = 'stop';
+  }
+
+  // Antrenman modunu otomatik aktif et
+  trainerConfig.enabled = true;
+  saveTrainerConfig();
+  syncTrainerUIFromConfig();
+  
+  // Eğer metronom çalışmıyorsa mevcut tempoyu da başlangıca çek
+  if (!metroRunning) {
+    setMetroBpm(trainerConfig.startBpm);
+  }
+  showTrainerStatusMsg(`Preset yüklendi: ${trainerConfig.startBpm} → ${trainerConfig.targetBpm} BPM (+${trainerConfig.stepBpm} BPM / ${trainerConfig.barInterval} Ölçü)`);
+}
+
+function syncTrainerUIFromConfig() {
+  const enableToggle = document.getElementById('trainer-enable-toggle');
+  if (enableToggle) enableToggle.checked = trainerConfig.enabled;
+
+  const startInput = document.getElementById('trainer-start-bpm');
+  if (startInput) startInput.value = trainerConfig.startBpm;
+
+  const targetInput = document.getElementById('trainer-target-bpm');
+  if (targetInput) targetInput.value = trainerConfig.targetBpm;
+
+  const currBpmLbl = document.getElementById('trainer-curr-bpm-lbl');
+  if (currBpmLbl) currBpmLbl.textContent = metroBpm;
+
+  // Step chips
+  document.querySelectorAll('#trainer-step-chips .step-chip').forEach(chip => {
+    const s = parseInt(chip.dataset.step, 10);
+    chip.classList.toggle('active', s === trainerConfig.stepBpm);
+  });
+  const stepHintVal = document.getElementById('trainer-step-hint-val');
+  if (stepHintVal) stepHintVal.textContent = `+${trainerConfig.stepBpm}`;
+
+  // Mode tabs & options
+  const modeTabBars = document.getElementById('mode-tab-bars');
+  const modeTabTime = document.getElementById('mode-tab-time');
+  const barsOptions = document.getElementById('interval-bars-options');
+  const timeOptions = document.getElementById('interval-time-options');
+
+  if (trainerConfig.intervalType === 'bars') {
+    if (modeTabBars) modeTabBars.classList.add('active');
+    if (modeTabTime) modeTabTime.classList.remove('active');
+    if (barsOptions) barsOptions.style.display = 'flex';
+    if (timeOptions) timeOptions.style.display = 'none';
+  } else {
+    if (modeTabBars) modeTabBars.classList.remove('active');
+    if (modeTabTime) modeTabTime.classList.add('active');
+    if (barsOptions) barsOptions.style.display = 'none';
+    if (timeOptions) timeOptions.style.display = 'flex';
+  }
+
+  // Interval chips
+  document.querySelectorAll('#interval-bars-options .interval-chip').forEach(chip => {
+    const b = parseInt(chip.dataset.bars, 10);
+    chip.classList.toggle('active', b === trainerConfig.barInterval);
+  });
+  document.querySelectorAll('#interval-time-options .interval-chip').forEach(chip => {
+    const t = parseInt(chip.dataset.time, 10);
+    chip.classList.toggle('active', t === trainerConfig.timeInterval);
+  });
+
+  // Target action radios
+  document.querySelectorAll('input[name="trainer-target-action"]').forEach(radio => {
+    radio.checked = (radio.value === trainerConfig.onTarget);
+  });
+
+  // Audio cue checkbox
+  const audioCueChk = document.getElementById('trainer-audio-cue');
+  if (audioCueChk) audioCueChk.checked = trainerConfig.audioCue;
+
+  // Panel state
+  const panel = document.getElementById('trainer-panel');
+  const toggleBtn = document.getElementById('trainer-toggle-btn');
+  if (panel && toggleBtn) {
+    panel.classList.toggle('open', !!trainerConfig.panelOpen);
+    toggleBtn.classList.toggle('panel-open', !!trainerConfig.panelOpen);
+  }
+
+  updateTrainerDashboard();
+}
+
+function initTempoTrainer() {
+  loadTrainerConfig();
+
+  const toggleBtn = document.getElementById('trainer-toggle-btn');
+  const panel = document.getElementById('trainer-panel');
+  const enableToggle = document.getElementById('trainer-enable-toggle');
+  const startInput = document.getElementById('trainer-start-bpm');
+  const startPlus = document.getElementById('trainer-start-plus');
+  const startMinus = document.getElementById('trainer-start-minus');
+  const setCurrentStartBtn = document.getElementById('trainer-set-current-start');
+  const targetInput = document.getElementById('trainer-target-bpm');
+  const targetPlus = document.getElementById('trainer-target-plus');
+  const targetMinus = document.getElementById('trainer-target-minus');
+  const modeTabBars = document.getElementById('mode-tab-bars');
+  const modeTabTime = document.getElementById('mode-tab-time');
+  const audioCueChk = document.getElementById('trainer-audio-cue');
+  const resetBtn = document.getElementById('trainer-reset-btn');
+
+  // Paneli Aç / Kapat
+  if (toggleBtn && panel) {
+    toggleBtn.addEventListener('click', () => {
+      trainerConfig.panelOpen = !trainerConfig.panelOpen;
+      panel.classList.toggle('open', trainerConfig.panelOpen);
+      toggleBtn.classList.toggle('panel-open', trainerConfig.panelOpen);
+      saveTrainerConfig();
+    });
+  }
+
+  // Antrenman Modu Aç / Kapat
+  if (enableToggle) {
+    enableToggle.addEventListener('change', () => {
+      trainerConfig.enabled = enableToggle.checked;
+      saveTrainerConfig();
+      updateTrainerDashboard();
+      if (trainerConfig.enabled && !metroRunning) {
+        setMetroBpm(trainerConfig.startBpm);
+      }
+    });
+  }
+
+  // Başlangıç BPM
+  if (startInput) {
+    startInput.addEventListener('change', () => {
+      let v = parseInt(startInput.value, 10);
+      if (isNaN(v)) v = 60;
+      trainerConfig.startBpm = Math.max(40, Math.min(240, v));
+      startInput.value = trainerConfig.startBpm;
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+  }
+  if (startPlus) {
+    startPlus.addEventListener('click', () => {
+      trainerConfig.startBpm = Math.min(240, trainerConfig.startBpm + 5);
+      if (startInput) startInput.value = trainerConfig.startBpm;
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+  }
+  if (startMinus) {
+    startMinus.addEventListener('click', () => {
+      trainerConfig.startBpm = Math.max(40, trainerConfig.startBpm - 5);
+      if (startInput) startInput.value = trainerConfig.startBpm;
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+  }
+  if (setCurrentStartBtn) {
+    setCurrentStartBtn.addEventListener('click', () => {
+      trainerConfig.startBpm = metroBpm;
+      if (startInput) startInput.value = trainerConfig.startBpm;
+      saveTrainerConfig();
+      updateTrainerDashboard();
+      showTrainerStatusMsg(`Başlangıç BPM'i ${metroBpm} olarak ayarlandı.`);
+    });
+  }
+
+  // Hedef BPM
+  if (targetInput) {
+    targetInput.addEventListener('change', () => {
+      let v = parseInt(targetInput.value, 10);
+      if (isNaN(v)) v = 120;
+      trainerConfig.targetBpm = Math.max(40, Math.min(280, v));
+      targetInput.value = trainerConfig.targetBpm;
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+  }
+  if (targetPlus) {
+    targetPlus.addEventListener('click', () => {
+      trainerConfig.targetBpm = Math.min(280, trainerConfig.targetBpm + 5);
+      if (targetInput) targetInput.value = trainerConfig.targetBpm;
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+  }
+  if (targetMinus) {
+    targetMinus.addEventListener('click', () => {
+      trainerConfig.targetBpm = Math.max(40, trainerConfig.targetBpm - 5);
+      if (targetInput) targetInput.value = trainerConfig.targetBpm;
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+  }
+
+  // Hedef Quick Chips
+  document.querySelectorAll('.target-quick-chips .quick-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = parseInt(chip.dataset.val, 10);
+      if (val) {
+        trainerConfig.targetBpm = val;
+        if (targetInput) targetInput.value = val;
+        saveTrainerConfig();
+        updateTrainerDashboard();
+      }
+    });
+  });
+
+  // Step Chips (+1, +2, +3, +4, +5)
+  document.querySelectorAll('#trainer-step-chips .step-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#trainer-step-chips .step-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      trainerConfig.stepBpm = parseInt(chip.dataset.step, 10);
+      const stepHintVal = document.getElementById('trainer-step-hint-val');
+      if (stepHintVal) stepHintVal.textContent = `+${trainerConfig.stepBpm}`;
+      saveTrainerConfig();
+    });
+  });
+
+  // Mode Tabs (Ölçü / Süre)
+  if (modeTabBars && modeTabTime) {
+    modeTabBars.addEventListener('click', () => {
+      trainerConfig.intervalType = 'bars';
+      modeTabBars.classList.add('active');
+      modeTabTime.classList.remove('active');
+      document.getElementById('interval-bars-options').style.display = 'flex';
+      document.getElementById('interval-time-options').style.display = 'none';
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+    modeTabTime.addEventListener('click', () => {
+      trainerConfig.intervalType = 'time';
+      modeTabTime.classList.add('active');
+      modeTabBars.classList.remove('active');
+      document.getElementById('interval-bars-options').style.display = 'none';
+      document.getElementById('interval-time-options').style.display = 'flex';
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+  }
+
+  // Interval Chips (Ölçü & Süre)
+  document.querySelectorAll('#interval-bars-options .interval-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#interval-bars-options .interval-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      trainerConfig.barInterval = parseInt(chip.dataset.bars, 10);
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+  });
+  document.querySelectorAll('#interval-time-options .interval-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#interval-time-options .interval-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      trainerConfig.timeInterval = parseInt(chip.dataset.time, 10);
+      saveTrainerConfig();
+      updateTrainerDashboard();
+    });
+  });
+
+  // Target Action Radios
+  document.querySelectorAll('input[name="trainer-target-action"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radio.checked) {
+        trainerConfig.onTarget = radio.value;
+        saveTrainerConfig();
+      }
+    });
+  });
+
+  // Audio Cue Checkbox
+  if (audioCueChk) {
+    audioCueChk.addEventListener('change', () => {
+      trainerConfig.audioCue = audioCueChk.checked;
+      saveTrainerConfig();
+    });
+  }
+
+  // Preset Buttons
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      applyTrainerPreset(btn.dataset.preset);
+    });
+  });
+
+  // Reset Antrenman
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      trainerState.currentBars = 0;
+      trainerState.direction = 1;
+      if (audioCtx) trainerState.stepStartTime = audioCtx.currentTime;
+      setMetroBpm(trainerConfig.startBpm);
+      updateTrainerDashboard();
+      showTrainerStatusMsg(`Antrenman başa sarıldı (${trainerConfig.startBpm} BPM).`);
+      pulseBpmDisplay();
+    });
+  }
+
+  syncTrainerUIFromConfig();
+}
 
 // ════════════════════════════════════════════
 //  GERİ SAYIM TİMERLARI
@@ -547,6 +1121,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 5) Umut Gig - Bulut ve Yerel Veri Yönetimi
   initUmutGigs();
+
+  // 6) Tempo Trainer Başlatıcı
+  initTempoTrainer();
 });
 
 // ════════════════════════════════════════════
