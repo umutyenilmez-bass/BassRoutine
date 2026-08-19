@@ -40,31 +40,30 @@
 
   <main class="main-content">
 
-    <!-- METRONOM -->
+    <!-- BİRLEŞİK KOMPAKT METRONOM & KADEMELİ PANEL -->
     <div class="metronome-bar">
-      <div class="metro-beats">
-        <div class="beat-dot" id="beat-dot-1">1</div>
-        <div class="beat-dot" id="beat-dot-2">2</div>
-        <div class="beat-dot" id="beat-dot-3">3</div>
-        <div class="beat-dot" id="beat-dot-4">4</div>
-      </div>
-      <div class="metro-center">
-        <button class="metro-step" id="metro-minus">−</button>
-        <div class="bpm-wrap">
-          <input type="number" id="bpm-input" value="80" min="40" max="240" class="bpm-input" />
-          <span class="bpm-unit">BPM</span>
+      <div class="metro-main-row">
+        <div class="metro-beats">
+          <div class="beat-dot" id="beat-dot-1">1</div>
+          <div class="beat-dot" id="beat-dot-2">2</div>
+          <div class="beat-dot" id="beat-dot-3">3</div>
+          <div class="beat-dot" id="beat-dot-4">4</div>
         </div>
-        <button class="metro-step" id="metro-plus">+</button>
+        <div class="metro-center">
+          <button class="metro-step" id="metro-minus">−</button>
+          <div class="bpm-wrap">
+            <input type="number" id="bpm-input" value="80" min="40" max="260" class="bpm-input" />
+            <span class="bpm-unit">BPM</span>
+          </div>
+          <button class="metro-step" id="metro-plus">+</button>
+        </div>
+        <div class="metro-right">
+          <button class="tap-btn" id="tap-btn">TAP</button>
+          <button class="metro-toggle" id="metro-toggle">Başlat</button>
+        </div>
       </div>
-      <div class="metro-right">
-        <button class="tap-btn" id="tap-btn">TAP</button>
-        <button class="metro-toggle" id="metro-toggle">Başlat</button>
-      </div>
-    </div>
 
-    <!-- KADEMELİ METRONOM ŞERİDİ -->
-    <div class="kademeli-strip" id="kademeli-strip">
-      <div class="kademeli-inner">
+      <div class="metro-kademeli-row">
         <button class="kademeli-toggle-btn" id="kademeli-toggle-btn">
           <span class="kademeli-dot"></span>
           <span class="kademeli-txt">Kademeli: <b id="kademeli-status-txt">KAPALI</b></span>
