@@ -58,171 +58,38 @@
       </div>
       <div class="metro-right">
         <button class="tap-btn" id="tap-btn">TAP</button>
-        <button class="trainer-toggle-btn" id="trainer-toggle-btn" title="Kademeli Tempo Artışı (Tempo Trainer)">
-          <span class="trainer-icon">⚡</span>
-          <span class="trainer-btn-text">Trainer</span>
-          <span class="trainer-pill" id="trainer-status-pill">KAPALI</span>
-        </button>
         <button class="metro-toggle" id="metro-toggle">Başlat</button>
       </div>
     </div>
 
-    <!-- TEMPO TRAINER PANEL -->
-    <div class="trainer-panel" id="trainer-panel">
-      <div class="trainer-panel-inner">
-        
-        <!-- Üst Başlık & Switch -->
-        <div class="trainer-header-row">
-          <div class="trainer-title-wrap">
-            <div class="trainer-title">
-              <span class="trainer-icon-big">📈</span>
-              <span>Kademeli Tempo Artışı (Tempo Trainer)</span>
-            </div>
-            <div class="trainer-desc">Belirlenen ölçü veya sürede tempoyu otomatik ve kademeli olarak artırır.</div>
-          </div>
-          
-          <div class="trainer-switch-wrap">
-            <label class="trainer-switch-label" for="trainer-enable-toggle">
-              <span class="switch-text">Antrenman Modu</span>
-              <input type="checkbox" id="trainer-enable-toggle" class="trainer-switch-input" />
-              <span class="trainer-switch-slider"></span>
-            </label>
+    <!-- KADEMELİ METRONOM ŞERİDİ -->
+    <div class="kademeli-strip" id="kademeli-strip">
+      <div class="kademeli-inner">
+        <button class="kademeli-toggle-btn" id="kademeli-toggle-btn">
+          <span class="kademeli-dot"></span>
+          <span class="kademeli-txt">Kademeli Artış: <b id="kademeli-status-txt">KAPALI</b></span>
+        </button>
+
+        <div class="kademeli-group">
+          <span class="k-label">Artış:</span>
+          <div class="k-buttons">
+            <button class="k-step-btn active" data-step="5">+5 BPM</button>
+            <button class="k-step-btn" data-step="10">+10 BPM</button>
+            <button class="k-step-btn" data-step="15">+15 BPM</button>
           </div>
         </div>
 
-        <!-- Hızlı Hazır Ayarlar (Presets) -->
-        <div class="trainer-presets-row">
-          <span class="preset-label">Hızlı Presetler:</span>
-          <div class="preset-buttons">
-            <button class="preset-btn" data-preset="warmup">☕ Isınma (60→100, +2 BPM / 4 Ölçü)</button>
-            <button class="preset-btn" data-preset="speed">🚀 Hızlanma (80→140, +4 BPM / 4 Ölçü)</button>
-            <button class="preset-btn" data-preset="endurance">🔥 Dayanıklılık (90→130, +5 BPM / 8 Ölçü)</button>
-            <button class="preset-btn" data-preset="drill">⚡ Speed Drill (100→160, +2 BPM / 2 Ölçü)</button>
+        <div class="kademeli-group">
+          <span class="k-label">Sıklık:</span>
+          <div class="k-buttons">
+            <button class="k-bar-btn active" data-bars="4">Her 4 Ölçü</button>
+            <button class="k-bar-btn" data-bars="8">Her 8 Ölçü</button>
           </div>
         </div>
 
-        <!-- Ayarlar Grid -->
-        <div class="trainer-config-grid">
-          
-          <!-- Başlangıç BPM -->
-          <div class="trainer-config-card">
-            <div class="config-label">Başlangıç BPM</div>
-            <div class="config-input-group">
-              <button class="config-step-btn" id="trainer-start-minus">−</button>
-              <input type="number" id="trainer-start-bpm" class="config-num-input" value="60" min="40" max="240" />
-              <button class="config-step-btn" id="trainer-start-plus">+</button>
-            </div>
-            <button class="config-mini-btn" id="trainer-set-current-start">Mevcut BPM'i Al (<span id="trainer-curr-bpm-lbl">80</span>)</button>
-          </div>
-
-          <!-- Hedef BPM -->
-          <div class="trainer-config-card">
-            <div class="config-label">Hedef BPM</div>
-            <div class="config-input-group">
-              <button class="config-step-btn" id="trainer-target-minus">−</button>
-              <input type="number" id="trainer-target-bpm" class="config-num-input" value="120" min="40" max="280" />
-              <button class="config-step-btn" id="trainer-target-plus">+</button>
-            </div>
-            <div class="target-quick-chips">
-              <button class="quick-chip" data-val="100">100</button>
-              <button class="quick-chip" data-val="120">120</button>
-              <button class="quick-chip" data-val="140">140</button>
-              <button class="quick-chip" data-val="160">160</button>
-            </div>
-          </div>
-
-          <!-- Artış Miktarı (Step) -->
-          <div class="trainer-config-card">
-            <div class="config-label">Artış Miktarı (Adım)</div>
-            <div class="trainer-step-chips" id="trainer-step-chips">
-              <button class="step-chip" data-step="1">+1</button>
-              <button class="step-chip active" data-step="2">+2</button>
-              <button class="step-chip" data-step="3">+3</button>
-              <button class="step-chip" data-step="4">+4</button>
-              <button class="step-chip" data-step="5">+5</button>
-            </div>
-            <div class="config-hint">Her aralıkta <span id="trainer-step-hint-val">+2</span> BPM artar</div>
-          </div>
-
-          <!-- Artış Sıklığı (Aralık) -->
-          <div class="trainer-config-card">
-            <div class="config-label">Artış Sıklığı (Aralık)</div>
-            <div class="trainer-mode-tabs">
-              <button class="mode-tab active" id="mode-tab-bars" data-type="bars">Ölçü Bazlı</button>
-              <button class="mode-tab" id="mode-tab-time" data-type="time">Süre Bazlı</button>
-            </div>
-            <div class="trainer-interval-content">
-              <!-- Ölçü Seçimi -->
-              <div class="interval-options" id="interval-bars-options">
-                <button class="interval-chip" data-bars="2">2 Ölçü</button>
-                <button class="interval-chip active" data-bars="4">4 Ölçü</button>
-                <button class="interval-chip" data-bars="8">8 Ölçü</button>
-                <button class="interval-chip" data-bars="16">16 Ölçü</button>
-              </div>
-              <!-- Süre Seçimi -->
-              <div class="interval-options" id="interval-time-options" style="display: none;">
-                <button class="interval-chip" data-time="15">15 sn</button>
-                <button class="interval-chip active" data-time="30">30 sn</button>
-                <button class="interval-chip" data-time="45">45 sn</button>
-                <button class="interval-chip" data-time="60">60 sn</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Hedefe Ulaşınca & Seçenekler -->
-          <div class="trainer-config-card trainer-config-wide">
-            <div class="config-label">Hedefe Ulaşınca Ne Yapılsın?</div>
-            <div class="target-action-group">
-              <label class="action-radio-label">
-                <input type="radio" name="trainer-target-action" value="stay" checked />
-                <span>Hedefte Sabit Kal</span>
-              </label>
-              <label class="action-radio-label">
-                <input type="radio" name="trainer-target-action" value="stop" />
-                <span>Durdur &amp; Çan Çal</span>
-              </label>
-              <label class="action-radio-label">
-                <input type="radio" name="trainer-target-action" value="pyramid" />
-                <span>Piramit Modu (Geri Düş &amp; Tekrarla)</span>
-              </label>
-            </div>
-            <div class="trainer-opt-row">
-              <label class="trainer-checkbox-label">
-                <input type="checkbox" id="trainer-audio-cue" checked />
-                <span>🔔 Tempo artışında sinyal sesi çal</span>
-              </label>
-            </div>
-          </div>
-
+        <div class="kademeli-live" id="kademeli-live-info">
+          <span id="k-bar-count-lbl">Ölçü: 0 / 4</span>
         </div>
-
-        <!-- Canlı Antrenman Dashboard -->
-        <div class="trainer-live-dashboard" id="trainer-live-dashboard">
-          <div class="live-status-row">
-            <div class="live-stat-box">
-              <div class="stat-lbl">Başlangıç</div>
-              <div class="stat-val" id="stat-start-bpm">60 BPM</div>
-            </div>
-            <div class="live-progress-center">
-              <div class="progress-info">
-                <span class="progress-current-badge" id="live-current-badge">Mevcut: <strong id="live-current-bpm">80</strong> BPM</span>
-                <span class="progress-sub-info" id="live-sub-info">Ölçü: 0 / 4</span>
-              </div>
-              <div class="trainer-progress-bar-track">
-                <div class="trainer-progress-bar-fill" id="trainer-progress-fill" style="width: 0%"></div>
-              </div>
-            </div>
-            <div class="live-stat-box">
-              <div class="stat-lbl">Hedef</div>
-              <div class="stat-val" id="stat-target-bpm">120 BPM</div>
-            </div>
-          </div>
-          <div class="live-controls-row">
-            <div class="live-note" id="trainer-live-note">Metronom başlatıldığında tempo kademeli olarak artacaktır.</div>
-            <button class="ghost-btn-trainer" id="trainer-reset-btn">↺ Antrenmanı Başa Sar</button>
-          </div>
-        </div>
-
       </div>
     </div>
 

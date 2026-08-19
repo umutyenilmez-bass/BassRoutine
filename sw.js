@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bassroutune-v4';
+const CACHE_NAME = 'bassroutune-v5';
 const ASSETS = [
   './',
   './index.html',
