@@ -339,6 +339,41 @@ body {
   border-color: var(--green);
   color: var(--text-1);
 }
+.k-sec-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+}
+.k-sec-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-1);
+  font-family: var(--ff-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  width: 38px;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.k-sec-input::-webkit-outer-spin-button,
+.k-sec-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.k-sec-unit {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-3);
+}
+.k-hint {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  white-space: nowrap;
+}
 .kademeli-live {
   margin-left: auto;
   font-family: var(--ff-display);

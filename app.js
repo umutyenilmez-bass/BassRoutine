@@ -38,10 +38,10 @@ let metroAnimId   = null;
 let scheduledBeats = [];
 
 // KADEMELİ METRONOM AYARLARI
-let kademeliEnabled = false;
-let kademeliStep    = 5;   // 5, 10, 15
-let kademeliBars    = 4;   // 4 veya 8 ölçü
-let kademeliCount   = 0;   // Ölçü sayacı
+let kademeliEnabled   = false;
+let kademeliStep      = 5;    // 5, 10, 15
+let kademeliSeconds   = 15;   // Kullanıcının yazdığı saniye (örn: 13)
+let kademeliStartTime = 0;    // Adımın başladığı zaman
 
 function setMetroBpm(v, updateInput = true) {
   let val = parseInt(v, 10);
@@ -80,12 +80,14 @@ function metroTick(time, beat) {
 function scheduleMetro() {
   const ctx = getAudioCtx();
   while (metroNextTime < ctx.currentTime + 0.12) {
-    // Her ölçünün ilk vuruşunda (beat 0) kademeli artış kontrolü
+    // Her ölçünün ilk vuruşunda (beat 0) süre kontrolü
     if (metroBeat === 0 && metroRunning && kademeliEnabled) {
-      kademeliCount++;
-      if (kademeliCount > kademeliBars) {
-        kademeliCount = 1;
+      if (!kademeliStartTime) kademeliStartTime = metroNextTime;
+      const elapsed = metroNextTime - kademeliStartTime;
+      // Belirlenen saniye dolduysa ve ölçü bittiyse (yeni ölçünün 1. vuruşunda) tempoyu artır
+      if (elapsed >= kademeliSeconds) {
         metroBpm = Math.min(260, metroBpm + kademeliStep);
+        kademeliStartTime = metroNextTime;
         setMetroBpm(metroBpm);
         pulseBpmDisplay();
       }
@@ -108,13 +110,19 @@ function animateBeats() {
       const dot = document.getElementById('beat-dot-' + ((b.beat % 4) + 1));
       if (dot) dot.classList.add(b.beat === 0 ? 'accent' : 'active');
 
-      // Ölçü sayacı metnini güncelle
+      // Sayaç / Bilgi metnini güncelle
       const countLbl = document.getElementById('k-bar-count-lbl');
       if (countLbl) {
         if (kademeliEnabled && metroRunning) {
-          countLbl.textContent = `Ölçü: ${Math.max(1, kademeliCount || 1)} / ${kademeliBars} (+${kademeliStep} BPM)`;
+          const elapsed = Math.max(0, audioCtx.currentTime - (kademeliStartTime || audioCtx.currentTime));
+          const rem = Math.max(0, Math.ceil(kademeliSeconds - elapsed));
+          if (rem === 0) {
+            countLbl.textContent = `Ölçü bitiminde +${kademeliStep} BPM...`;
+          } else {
+            countLbl.textContent = `Kalan: ${rem} sn (+${kademeliStep} BPM)`;
+          }
         } else {
-          countLbl.textContent = kademeliEnabled ? `Hazır: Her ${kademeliBars} Ölçüde +${kademeliStep} BPM` : 'Kademeli Kapalı';
+          countLbl.textContent = kademeliEnabled ? `Hazır: ${kademeliSeconds} sn sonra +${kademeliStep} BPM` : 'Kademeli Kapalı';
         }
       }
     }
@@ -125,11 +133,11 @@ function animateBeats() {
 function startMetro() {
   if (metroRunning) return;
   getAudioCtx();
-  metroRunning  = true;
-  metroBeat     = 0;
-  kademeliCount = 0;
-  metroNextTime = audioCtx.currentTime + 0.05;
-  scheduledBeats = [];
+  metroRunning      = true;
+  metroBeat         = 0;
+  metroNextTime     = audioCtx.currentTime + 0.05;
+  kademeliStartTime = metroNextTime;
+  scheduledBeats    = [];
   scheduleMetro();
   animateBeats();
   const btn = document.getElementById('metro-toggle');
@@ -149,7 +157,7 @@ function stopMetro() {
   
   const countLbl = document.getElementById('k-bar-count-lbl');
   if (countLbl) {
-    countLbl.textContent = kademeliEnabled ? `Hazır: Her ${kademeliBars} Ölçüde +${kademeliStep} BPM` : 'Kademeli Kapalı';
+    countLbl.textContent = kademeliEnabled ? `Hazır: ${kademeliSeconds} sn sonra +${kademeliStep} BPM` : 'Kademeli Kapalı';
   }
 }
 
@@ -199,6 +207,7 @@ function initKademeliMetronom() {
   const toggleBtn = document.getElementById('kademeli-toggle-btn');
   const statusTxt = document.getElementById('kademeli-status-txt');
   const countLbl  = document.getElementById('k-bar-count-lbl');
+  const secInput  = document.getElementById('k-seconds-input');
 
   // Kaydedilmiş ayarları yükle
   const savedEnabled = loadState('kademeli_enabled');
@@ -207,8 +216,8 @@ function initKademeliMetronom() {
   const savedStep = loadState('kademeli_step');
   if (savedStep) kademeliStep = parseInt(savedStep, 10);
 
-  const savedBars = loadState('kademeli_bars');
-  if (savedBars) kademeliBars = parseInt(savedBars, 10);
+  const savedSec = loadState('kademeli_seconds');
+  if (savedSec) kademeliSeconds = parseInt(savedSec, 10);
 
   function updateUI() {
     if (toggleBtn && statusTxt) {
@@ -220,22 +229,34 @@ function initKademeliMetronom() {
         statusTxt.textContent = 'KAPALI';
       }
     }
+    if (secInput) secInput.value = kademeliSeconds;
+
     document.querySelectorAll('.k-step-btn').forEach(btn => {
       btn.classList.toggle('active', parseInt(btn.dataset.step, 10) === kademeliStep);
     });
-    document.querySelectorAll('.k-bar-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.bars, 10) === kademeliBars);
-    });
     if (countLbl) {
-      countLbl.textContent = kademeliEnabled ? `Hazır: Her ${kademeliBars} Ölçüde +${kademeliStep} BPM` : 'Kademeli Kapalı';
+      countLbl.textContent = kademeliEnabled ? `Hazır: ${kademeliSeconds} sn sonra +${kademeliStep} BPM` : 'Kademeli Kapalı';
     }
   }
 
   if (toggleBtn) {
     toggleBtn.addEventListener('click', () => {
       kademeliEnabled = !kademeliEnabled;
-      kademeliCount = 0;
+      if (audioCtx) kademeliStartTime = audioCtx.currentTime;
       saveState('kademeli_enabled', kademeliEnabled);
+      updateUI();
+    });
+  }
+
+  if (secInput) {
+    secInput.addEventListener('change', () => {
+      let v = parseInt(secInput.value, 10);
+      if (isNaN(v) || v < 3) v = 3;
+      if (v > 600) v = 600;
+      kademeliSeconds = v;
+      secInput.value = v;
+      if (audioCtx) kademeliStartTime = audioCtx.currentTime;
+      saveState('kademeli_seconds', kademeliSeconds);
       updateUI();
     });
   }
@@ -244,14 +265,6 @@ function initKademeliMetronom() {
     btn.addEventListener('click', () => {
       kademeliStep = parseInt(btn.dataset.step, 10);
       saveState('kademeli_step', kademeliStep);
-      updateUI();
-    });
-  });
-
-  document.querySelectorAll('.k-bar-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      kademeliBars = parseInt(btn.dataset.bars, 10);
-      saveState('kademeli_bars', kademeliBars);
       updateUI();
     });
   });

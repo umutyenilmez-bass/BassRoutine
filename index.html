@@ -67,28 +67,29 @@
       <div class="kademeli-inner">
         <button class="kademeli-toggle-btn" id="kademeli-toggle-btn">
           <span class="kademeli-dot"></span>
-          <span class="kademeli-txt">Kademeli Artış: <b id="kademeli-status-txt">KAPALI</b></span>
+          <span class="kademeli-txt">Kademeli: <b id="kademeli-status-txt">KAPALI</b></span>
         </button>
 
         <div class="kademeli-group">
           <span class="k-label">Artış:</span>
           <div class="k-buttons">
-            <button class="k-step-btn active" data-step="5">+5 BPM</button>
-            <button class="k-step-btn" data-step="10">+10 BPM</button>
-            <button class="k-step-btn" data-step="15">+15 BPM</button>
+            <button class="k-step-btn active" data-step="5">+5</button>
+            <button class="k-step-btn" data-step="10">+10</button>
+            <button class="k-step-btn" data-step="15">+15</button>
           </div>
         </div>
 
         <div class="kademeli-group">
-          <span class="k-label">Sıklık:</span>
-          <div class="k-buttons">
-            <button class="k-bar-btn active" data-bars="4">Her 4 Ölçü</button>
-            <button class="k-bar-btn" data-bars="8">Her 8 Ölçü</button>
+          <span class="k-label">Süre:</span>
+          <div class="k-sec-wrap">
+            <input type="number" id="k-seconds-input" class="k-sec-input" value="15" min="3" max="300" />
+            <span class="k-sec-unit">sn</span>
           </div>
+          <span class="k-hint">(ölçü bitiminde)</span>
         </div>
 
         <div class="kademeli-live" id="kademeli-live-info">
-          <span id="k-bar-count-lbl">Ölçü: 0 / 4</span>
+          <span id="k-bar-count-lbl">Kademeli Kapalı</span>
         </div>
       </div>
     </div>
